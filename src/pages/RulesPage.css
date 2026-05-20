@@ -1,0 +1,304 @@
+.rules-page {
+	min-height: 100vh;
+	padding-top: 80px;
+	background: linear-gradient(145deg, #0a0a15 0%, #1a1a2e 100%);
+}
+
+/* Шапка правил */
+.rules-header {
+	background: linear-gradient(135deg, rgba(78, 204, 163, 0.15), rgba(45, 122, 62, 0.1));
+	padding: 3rem 2rem;
+	text-align: center;
+	border-bottom: 1px solid rgba(78, 204, 163, 0.3);
+}
+
+.rules-header-content {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.rules-icon {
+	font-size: 3rem;
+	display: block;
+	margin-bottom: 1rem;
+	animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+	0%, 100% {
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-10px);
+	}
+}
+
+.rules-header h1 {
+	font-size: 2.5rem;
+	background: linear-gradient(135deg, var(--accent), #ffd700);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	margin-bottom: 1rem;
+}
+
+.rules-header p {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 1.1rem;
+}
+
+/* Статистика */
+.rules-stats {
+	display: flex;
+	justify-content: center;
+	gap: 2rem;
+	padding: 2rem;
+	flex-wrap: wrap;
+}
+
+.stat-card {
+	background: rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(10px);
+	border-radius: 15px;
+	padding: 1.5rem 2rem;
+	text-align: center;
+	min-width: 150px;
+	border: 1px solid rgba(78, 204, 163, 0.2);
+	transition: transform 0.3s;
+}
+
+	.stat-card:hover {
+		transform: translateY(-5px);
+		border-color: var(--accent);
+	}
+
+.stat-number {
+	display: block;
+	font-size: 2rem;
+	font-weight: bold;
+	color: var(--accent);
+	margin-bottom: 0.5rem;
+}
+
+.stat-text {
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+/* Контейнер правил */
+.rules-container {
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 2rem;
+}
+
+/* Секция правил */
+.rules-section {
+	margin-bottom: 3rem;
+	background: rgba(255, 255, 255, 0.03);
+	border-radius: 20px;
+	overflow: hidden;
+	border: 1px solid rgba(78, 204, 163, 0.15);
+}
+
+.section-title {
+	background: rgba(78, 204, 163, 0.1);
+	padding: 1rem 1.5rem;
+	margin: 0;
+	font-size: 1.5rem;
+	color: var(--accent);
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	border-bottom: 1px solid rgba(78, 204, 163, 0.2);
+}
+
+.section-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 35px;
+	height: 35px;
+	background: var(--accent);
+	color: #1a1a2e;
+	border-radius: 10px;
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+
+/* Список правил */
+.rules-list {
+	padding: 0;
+}
+
+.rule-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	padding: 1.2rem 1.5rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	transition: background 0.3s;
+}
+
+	.rule-item:hover {
+		background: rgba(78, 204, 163, 0.05);
+	}
+
+	.rule-item:last-child {
+		border-bottom: none;
+	}
+
+/* Нумерация правил - единый цвет */
+.rule-number {
+	min-width: 55px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.1rem;
+	background: rgba(78, 204, 163, 0.15);
+	padding: 0.3rem 0.5rem;
+	border-radius: 8px;
+	font-weight: bold;
+	font-size: 1.1rem;
+}
+
+.rule-section,
+.rule-num {
+	color: var(--accent);
+}
+
+.rule-separator {
+	color: rgba(78, 204, 163, 0.5);
+	font-size: 0.9rem;
+}
+
+/* Иконка правила */
+.rule-icon {
+	font-size: 1.8rem;
+	min-width: 45px;
+	text-align: center;
+}
+
+/* Контент правила */
+.rule-content {
+	flex: 1;
+}
+
+	.rule-content h3 {
+		color: var(--accent);
+		margin-bottom: 0.5rem;
+		font-size: 1.1rem;
+	}
+
+	.rule-content p {
+		color: rgba(255, 255, 255, 0.7);
+		line-height: 1.5;
+		font-size: 0.95rem;
+	}
+
+/* Футер правил */
+.rules-footer {
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 0 2rem 3rem;
+	display: grid;
+	gap: 1.5rem;
+}
+
+.warning-box, .appeal-box {
+	background: rgba(0, 0, 0, 0.4);
+	border-radius: 15px;
+	padding: 1.5rem;
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+	border-left: 4px solid;
+}
+
+.warning-box {
+	border-left-color: #ff6b6b;
+}
+
+.appeal-box {
+	border-left-color: var(--accent);
+}
+
+.warning-icon, .appeal-icon {
+	font-size: 2rem;
+	min-width: 45px;
+}
+
+.warning-box strong, .appeal-box strong {
+	display: block;
+	margin-bottom: 0.5rem;
+	color: white;
+}
+
+.warning-box ul {
+	margin: 0.5rem 0 0 1.5rem;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.warning-box li {
+	margin: 0.25rem 0;
+}
+
+.appeal-box p {
+	color: rgba(255, 255, 255, 0.7);
+	line-height: 1.5;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+	.rules-header h1 {
+		font-size: 1.8rem;
+	}
+
+	.rules-header p {
+		font-size: 0.9rem;
+	}
+
+	.rules-stats {
+		gap: 1rem;
+		padding: 1rem;
+	}
+
+	.stat-card {
+		padding: 1rem;
+		min-width: 100px;
+	}
+
+	.stat-number {
+		font-size: 1.5rem;
+	}
+
+	.rules-container {
+		padding: 1rem;
+	}
+
+	.section-title {
+		font-size: 1.2rem;
+		padding: 0.8rem 1rem;
+	}
+
+	.rule-item {
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 1rem;
+	}
+
+	.rule-number {
+		align-self: flex-start;
+	}
+
+	.rule-icon {
+		position: absolute;
+		right: 1rem;
+		opacity: 0.3;
+	}
+
+	.warning-box, .appeal-box {
+		flex-direction: column;
+	}
+}

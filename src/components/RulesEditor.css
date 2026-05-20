@@ -1,0 +1,243 @@
+.rules-editor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rules-editor-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid #4ecca3;
+}
+
+.rules-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(78, 204, 163, 0.3);
+    position: sticky;
+    top: 0;
+    background: inherit;
+}
+
+    .rules-editor-header h2 {
+        color: #4ecca3;
+        margin: 0;
+    }
+
+.close-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+    .close-btn:hover {
+        background: rgba(255,0,0,0.5);
+        transform: rotate(90deg);
+    }
+
+.rules-message {
+    margin: 1rem 1.5rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+    .rules-message.success {
+        background: rgba(0,255,0,0.1);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+    }
+
+    .rules-message.error {
+        background: rgba(255,0,0,0.1);
+        border: 1px solid #ff0000;
+        color: #ff6b6b;
+    }
+
+.rules-editor-toolbar {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.add-rule-btn {
+    background: #4ecca3;
+    color: #1a1a2e;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.rules-editor-list {
+    padding: 1.5rem;
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.editor-section {
+    margin-bottom: 2rem;
+}
+
+.editor-section-title {
+    color: #4ecca3;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(78,204,163,0.3);
+}
+
+.editor-rule-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.editor-rule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-rule-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rule-icon {
+    font-size: 1.2rem;
+}
+
+.editor-rule-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-rule-btn, .delete-rule-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 5px;
+}
+
+    .edit-rule-btn:hover {
+        background: rgba(78,204,163,0.2);
+    }
+
+    .delete-rule-btn:hover {
+        background: rgba(255,0,0,0.2);
+    }
+
+.editor-rule-description {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    padding-left: 1.8rem;
+}
+
+.editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.editor-input, .editor-textarea {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+    font-size: 0.9rem;
+}
+
+    .editor-input:focus, .editor-textarea:focus {
+        outline: none;
+        border-color: #4ecca3;
+    }
+
+.editor-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.editor-input-small {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+}
+
+.editor-select {
+    flex: 2;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.save-btn, .cancel-btn {
+    padding: 0.4rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.save-btn {
+    background: #4ecca3;
+    color: #1a1a2e;
+}
+
+.cancel-btn {
+    background: rgba(255,0,0,0.3);
+    color: #ff6b6b;
+}
+
+.editor-add-form {
+    margin: 1rem 1.5rem;
+    padding: 1rem;
+    background: rgba(78,204,163,0.1);
+    border-radius: 10px;
+    border: 1px solid #4ecca3;
+}
+
+    .editor-add-form h3 {
+        color: #4ecca3;
+        margin-bottom: 1rem;
+    }
+
+.rules-editor-loading {
+    text-align: center;
+    padding: 2rem;
+    color: white;
+}
