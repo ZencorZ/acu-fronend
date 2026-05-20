@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './RulesEditor.css';
 
-const api = axios.create({ baseURL: '/api', timeout: 10000 });
+const API_URL = import.meta.env.VITE_API_URL || '';
+const api = axios.create({
+    baseURL: `${API_URL}/api`,
+    timeout: 10000
+});
 
 function RulesEditor({ onClose, adminToken }) {
     const [rules, setRules] = useState([]);

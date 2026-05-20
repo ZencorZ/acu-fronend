@@ -3,7 +3,11 @@ import './AdminPanel.css';
 import axios from 'axios';
 import RulesEditor from './RulesEditor';
 
-const api = axios.create({ baseURL: '/api', timeout: 10000 });
+const API_URL = import.meta.env.VITE_API_URL || '';
+const api = axios.create({
+    baseURL: `${API_URL}/api`,
+    timeout: 10000
+});
 
 function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
     const [loginData, setLoginData] = useState({ username: '', password: '' });

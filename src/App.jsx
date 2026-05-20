@@ -5,13 +5,19 @@ import axios from 'axios';
 import AdminPanel from './components/AdminPanel';
 import RulesPage from './pages/RulesPage';
 
-const api = axios.create({ baseURL: '/api', timeout: 10000 });
+// ========== КОНФИГУРАЦИЯ API ==========
+// Базовый URL для API запросов
+const API_URL = import.meta.env.VITE_API_URL || '';
+const api = axios.create({
+    baseURL: `${API_URL}/api`,
+    timeout: 10000
+});
 
 function App() {
     const [serverStatus, setServerStatus] = useState({ online: false, players: 0 });
-    const [whitelistForm, setWhitelistForm] = useState({
-        username: '',
-        reason: '',
+    const [whitelistForm, setWhitelistForm] = useState({ 
+        username: '', 
+        reason: '', 
         createExperience: '',
         discordTag: ''
     });
@@ -23,6 +29,22 @@ function App() {
     const [userApplications, setUserApplications] = useState([]);
     const [showUserApplications, setShowUserApplications] = useState(false);
     const [syncStatus, setSyncStatus] = useState({ syncing: false, lastSync: null });
+
+    // Получение UUID из Mojang API
+    const fetchUUIDFromMojang = async (username) => {
+        try {
+            const response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`, {
+                headers: { 'User-Agent': 'AssociationCreateUnits/1.0' }
+            });
+            if (!response.ok) return null;
+            const data = await response.json();
+            let uuid = data.id;
+            if (uuid && uuid.length === 32 && !uuid.includes('-')) {
+                uuid = `${uuid.slice(0,8)}-${uuid.slice(8,12)}-${uuid.slice(12,16)}-${uuid.slice(16,20)}-${uuid.slice(20)}`;
+            }
+            return uuid;
+        } catch { return null; }
+    };
 
     useEffect(() => {
         const fetchServerStatus = async () => {
@@ -49,7 +71,7 @@ function App() {
 
     const loadUserApplications = () => {
         const saved = localStorage.getItem('acu_user_applications');
-        if (saved) try { setUserApplications(JSON.parse(saved)); } catch (e) { }
+        if (saved) try { setUserApplications(JSON.parse(saved)); } catch (e) {}
     };
 
     const saveApplicationToLocal = (application) => {
@@ -106,34 +128,37 @@ function App() {
 
     const handleWhitelistSubmit = async (e) => {
         e.preventDefault();
-
+        
         if (!whitelistForm.username.trim()) {
             setFormStatus({ show: true, message: 'Введите ваш никнейм', type: 'error' });
             setTimeout(() => setFormStatus({ show: false, message: '', type: '' }), 3000);
             return;
         }
-
+        
         if (!whitelistForm.discordTag.trim()) {
             setFormStatus({ show: true, message: 'Введите ваш Discord ник', type: 'error' });
             setTimeout(() => setFormStatus({ show: false, message: '', type: '' }), 3000);
             return;
         }
-
+        
         if (!agreeRules) {
             setFormStatus({ show: true, message: 'Подтвердите согласие с правилами', type: 'error' });
             setTimeout(() => setFormStatus({ show: false, message: '', type: '' }), 3000);
             return;
         }
-
+        
         setIsSubmitting(true);
         try {
+            const playerUUID = await fetchUUIDFromMojang(whitelistForm.username);
+            
             const response = await api.post('/whitelist', {
                 username: whitelistForm.username,
+                uuid: playerUUID,
                 reason: whitelistForm.reason,
                 createExperience: whitelistForm.createExperience,
                 discordTag: whitelistForm.discordTag
             });
-
+            
             const newApplication = {
                 id: response.data.application.id,
                 username: whitelistForm.username,
@@ -144,7 +169,7 @@ function App() {
                 createdAt: new Date().toISOString(),
                 autoApproved: response.data.autoApproved
             };
-
+            
             saveApplicationToLocal(newApplication);
             setFormStatus({ show: true, message: response.data.message, type: 'success' });
             setWhitelistForm({ username: '', reason: '', createExperience: '', discordTag: '' });
@@ -160,7 +185,7 @@ function App() {
     };
 
     const copyIP = () => {
-        navigator.clipboard.writeText('78.109.129.242:9028');
+        navigator.clipboard.writeText('play.association-create-units.com');
         alert('IP скопирован!');
     };
 
@@ -279,7 +304,7 @@ function App() {
                             <div className="slogan-accent"></div>
                             <div className="server-info">
                                 <div className="status"><span className={`dot ${serverStatus.online ? 'online' : ''}`}></span><span>{serverStatus.online ? `Онлайн: ${serverStatus.players}/${serverStatus.maxPlayers}` : 'Сервер оффлайн'}</span></div>
-                                <div className="ip">IP: 78.109.129.242:9028</div>
+                                <div className="ip">IP: play.association-create-units.com</div>
                                 <button onClick={copyIP} className="copy-btn">📋 Скопировать IP</button>
                             </div>
                         </div>
@@ -297,33 +322,33 @@ function App() {
                             <form onSubmit={handleWhitelistSubmit} className="whitelist-form">
                                 <div className="form-group">
                                     <label>Ник Minecraft <span className="required">*</span></label>
-                                    <input
-                                        type="text"
+                                    <input 
+                                        type="text" 
                                         value={whitelistForm.username}
                                         onChange={(e) => setWhitelistForm({ ...whitelistForm, username: e.target.value })}
-                                        required
+                                        required 
                                         placeholder="Ваш игровой никнейм"
                                         disabled={isSubmitting}
                                     />
                                     <small className="form-hint">UUID будет получен автоматически</small>
                                 </div>
-
+                                
                                 <div className="form-group">
                                     <label>Discord ник <span className="required">*</span></label>
-                                    <input
-                                        type="text"
+                                    <input 
+                                        type="text" 
                                         value={whitelistForm.discordTag}
                                         onChange={(e) => setWhitelistForm({ ...whitelistForm, discordTag: e.target.value })}
-                                        required
-                                        placeholder="Ваш Discord ник (например: UserName)"
+                                        required 
+                                        placeholder="Ваш Discord ник"
                                         disabled={isSubmitting}
                                     />
                                     <small className="form-hint">Для связи с вами по вопросам заявки</small>
                                 </div>
-
+                                
                                 <div className="form-group">
                                     <label>Опыт игры с модом Create</label>
-                                    <select
+                                    <select 
                                         value={whitelistForm.createExperience}
                                         onChange={(e) => setWhitelistForm({ ...whitelistForm, createExperience: e.target.value })}
                                         disabled={isSubmitting}
@@ -338,22 +363,22 @@ function App() {
                                     </select>
                                     <small className="form-hint">Не обязательно, но поможет нам узнать вас лучше</small>
                                 </div>
-
+                                
                                 <div className="form-group">
                                     <label>Почему хотите играть на сервере?</label>
-                                    <textarea
+                                    <textarea 
                                         value={whitelistForm.reason}
                                         onChange={(e) => setWhitelistForm({ ...whitelistForm, reason: e.target.value })}
-                                        rows="3"
-                                        placeholder="Расскажите о себе, что вас привлекает в моде Create, какой опыт сборки у вас есть..."
+                                        rows="3" 
+                                        placeholder="Расскажите о себе..."
                                         disabled={isSubmitting}
                                     ></textarea>
                                 </div>
-
+                                
                                 <div className="form-group">
                                     <label className="checkbox-label">
-                                        <input
-                                            type="checkbox"
+                                        <input 
+                                            type="checkbox" 
                                             checked={agreeRules}
                                             onChange={(e) => setAgreeRules(e.target.checked)}
                                             required
@@ -362,7 +387,7 @@ function App() {
                                         Я прочитал и согласен с <Link to="/rules">правилами сервера</Link>
                                     </label>
                                 </div>
-
+                                
                                 <button type="submit" className="submit-btn" disabled={isSubmitting}>
                                     {isSubmitting ? 'Отправка...' : '📝 Отправить заявку'}
                                 </button>
@@ -376,7 +401,7 @@ function App() {
                     </section>
                 } />
             </Routes>
-            <footer><p>© 2026 Association Create Units — объединяем, чтобы создавать</p></footer>
+            <footer><p>© 2024 Association Create Units — объединяем, чтобы создавать</p></footer>
         </div>
     );
 }
