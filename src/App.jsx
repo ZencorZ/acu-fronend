@@ -5,6 +5,7 @@ import axios from 'axios';
 import AdminPanel from './components/AdminPanel';
 import RulesPage from './pages/RulesPage';
 
+// ========== API URL из переменной окружения ==========
 const API_URL = import.meta.env.VITE_API_URL || '';
 const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -29,10 +30,8 @@ function App() {
     const [syncStatus, setSyncStatus] = useState({ syncing: false, lastSync: null });
     const [submitButtonError, setSubmitButtonError] = useState(false);
     
-    // Уникальный ID пользователя
     const [userId, setUserId] = useState('');
 
-    // Генерация или получение уникального ID пользователя
     useEffect(() => {
         let storedUserId = localStorage.getItem('acu_user_id');
         if (!storedUserId) {
@@ -78,7 +77,6 @@ function App() {
         loadUserApplications();
     }, [userId]);
 
-    // Загрузка заявок ТОЛЬКО текущего пользователя
     const loadUserApplications = async () => {
         if (!userId) return;
         
@@ -107,7 +105,6 @@ function App() {
     const handleWhitelistSubmit = async (e) => {
         e.preventDefault();
         
-        // Сбрасываем ошибку кнопки
         setSubmitButtonError(false);
         
         if (!whitelistForm.username.trim()) {
@@ -122,16 +119,13 @@ function App() {
             return;
         }
         
-        // Проверка чекбокса
         if (!agreeRules) {
             setSubmitButtonError(true);
             setFormStatus({ show: true, message: '⚠️ Подтвердите согласие с правилами сервера', type: 'error' });
             
-            // Прокрутка к кнопке
             const submitBtn = document.querySelector('.submit-btn');
             submitBtn?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
-            // Убираем подсветку через 3 секунды
             setTimeout(() => {
                 setSubmitButtonError(false);
             }, 3000);
@@ -167,7 +161,7 @@ function App() {
     };
 
     const copyIP = () => {
-        navigator.clipboard.writeText('78.109.129.242:9028');
+        navigator.clipboard.writeText('play.association-create-units.com');
         alert('IP скопирован!');
     };
 
@@ -208,7 +202,7 @@ function App() {
             <nav className="navbar">
                 <div className="nav-container">
                     <Link to="/" className="logo">
-                        <img src="/src/logo/acu_logo.png" alt="ACU Logo" className="logo-icon" />
+                        <span className="logo-icon">⚔️</span>
                         <span>Association Create Units</span>
                     </Link>
                     <ul className="nav-menu">
@@ -275,7 +269,7 @@ function App() {
                     <section id="home" className="hero">
                         <div className="hero-content">
                             <div className="acu-main">
-                                <img src="/src/logo/acu_main_logo.png" alt="ACU Logo" className="acu-logo-img" />
+                                <div className="acu-glowing-icon">⚔️</div>
                                 <h1 className="acu-title">
                                     <span className="acu-acronym">ACU</span>
                                     <span className="acu-full">Association Create Units</span>
@@ -286,7 +280,7 @@ function App() {
                             <div className="slogan-accent"></div>
                             <div className="server-info">
                                 <div className="status"><span className={`dot ${serverStatus.online ? 'online' : ''}`}></span><span>{serverStatus.online ? `Онлайн: ${serverStatus.players}/${serverStatus.maxPlayers}` : 'Сервер оффлайн'}</span></div>
-                                <div className="ip">IP: 78.109.129.242:9028</div>
+                                <div className="ip">IP: play.association-create-units.com</div>
                                 <button onClick={copyIP} className="copy-btn">📋 Скопировать IP</button>
                             </div>
                         </div>
@@ -401,10 +395,10 @@ function App() {
                                 
                                 <button 
                                     type="submit" 
-                                    className={`submit-btn ${!agreeRules ? 'disabled' : ''}`}
-                                    disabled={!agreeRules || isSubmitting}
+                                    className={`submit-btn ${submitButtonError ? 'error' : ''}`}
+                                    disabled={isSubmitting}
                                 >
-                                    {!agreeRules ? '🔒 Подтвердите правила' : (isSubmitting ? 'Отправка...' : '📝 Отправить заявку')}
+                                    {isSubmitting ? 'Отправка...' : '📝 Отправить заявку'}
                                 </button>
                             </form>
                             {formStatus.show && (
