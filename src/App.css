@@ -1411,3 +1411,20 @@ footer {
         height: 28px;
     }
 }
+.discord-link {
+    display: flex;
+    align-items: center;
+    padding: 6px !important;
+}
+
+.discord-icon {
+    width: 22px;
+    height: 22px;
+    fill: #5865F2;
+    transition: all 0.3s;
+}
+
+.discord-link:hover .discord-icon {
+    fill: #8ea1e1;
+    transform: translateY(-2px);
+}
