@@ -4,6 +4,7 @@ import './App.css';
 import axios from 'axios';
 import AdminPanel from './components/AdminPanel';
 import RulesPage from './pages/RulesPage';
+import logo from './logo/logo.png';
 
 // ========== API URL из переменной окружения ==========
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -161,7 +162,7 @@ function App() {
     };
 
     const copyIP = () => {
-        navigator.clipboard.writeText('play.association-create-units.com');
+        navigator.clipboard.writeText('78.109.129.242:9028');
         alert('IP скопирован!');
     };
 
@@ -202,7 +203,7 @@ function App() {
             <nav className="navbar">
                 <div className="nav-container">
                     <Link to="/" className="logo">
-                        <span className="logo-icon">⚔️</span>
+                        <img src={logo} alt="ACU Logo" className="logo-icon" />
                         <span>Association Create Units</span>
                     </Link>
                     <ul className="nav-menu">
@@ -269,7 +270,7 @@ function App() {
                     <section id="home" className="hero">
                         <div className="hero-content">
                             <div className="acu-main">
-                                <div className="acu-glowing-icon">⚔️</div>
+                                <img src={logo} alt="ACU Logo" className="acu-logo-img" />
                                 <h1 className="acu-title">
                                     <span className="acu-acronym">ACU</span>
                                     <span className="acu-full">Association Create Units</span>
@@ -280,7 +281,7 @@ function App() {
                             <div className="slogan-accent"></div>
                             <div className="server-info">
                                 <div className="status"><span className={`dot ${serverStatus.online ? 'online' : ''}`}></span><span>{serverStatus.online ? `Онлайн: ${serverStatus.players}/${serverStatus.maxPlayers}` : 'Сервер оффлайн'}</span></div>
-                                <div className="ip">IP: play.association-create-units.com</div>
+                                <div className="ip">IP: 78.109.129.242:9028</div>
                                 <button onClick={copyIP} className="copy-btn">📋 Скопировать IP</button>
                             </div>
                         </div>
