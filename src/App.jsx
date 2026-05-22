@@ -208,7 +208,7 @@ function App() {
             <nav className="navbar">
                 <div className="nav-container">
                     <Link to="/" className="logo">
-                        <img src="src\logo\acu_logo.png" alt="ACU Logo" className="logo-icon" />
+                        <img src="/logo/acu_logo.png" alt="ACU Logo" className="logo-icon" />
                         <span>Association Create Units</span>
                     </Link>
                     <ul className="nav-menu">
@@ -275,7 +275,7 @@ function App() {
                     <section id="home" className="hero">
                         <div className="hero-content">
                             <div className="acu-main">
-                                <img src="src/logo/acu_main_logo.png" alt="ACU Logo" className="acu-logo-img" />
+                                <img src="/logo/acu_main_logo.png" alt="ACU Logo" className="acu-logo-img" />
                                 <h1 className="acu-title">
                                     <span className="acu-acronym">ACU</span>
                                     <span className="acu-full">Association Create Units</span>
