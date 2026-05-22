@@ -5,8 +5,6 @@ import axios from 'axios';
 import AdminPanel from './components/AdminPanel';
 import RulesPage from './pages/RulesPage';
 
-// ========== КОНФИГУРАЦИЯ API ==========
-// Базовый URL для API запросов
 const API_URL = import.meta.env.VITE_API_URL || '';
 const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -29,8 +27,22 @@ function App() {
     const [userApplications, setUserApplications] = useState([]);
     const [showUserApplications, setShowUserApplications] = useState(false);
     const [syncStatus, setSyncStatus] = useState({ syncing: false, lastSync: null });
+    const [submitButtonError, setSubmitButtonError] = useState(false);
+    
+    // Уникальный ID пользователя
+    const [userId, setUserId] = useState('');
 
-    // Получение UUID из Mojang API
+    // Генерация или получение уникального ID пользователя
+    useEffect(() => {
+        let storedUserId = localStorage.getItem('acu_user_id');
+        if (!storedUserId) {
+            storedUserId = crypto.randomUUID ? crypto.randomUUID() : 
+                Math.random().toString(36).substring(2) + Date.now().toString(36);
+            localStorage.setItem('acu_user_id', storedUserId);
+        }
+        setUserId(storedUserId);
+    }, []);
+
     const fetchUUIDFromMojang = async (username) => {
         try {
             const response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`, {
@@ -64,70 +76,39 @@ function App() {
         const adminToken = localStorage.getItem('adminToken');
         if (adminToken) setIsAdminLoggedIn(true);
         loadUserApplications();
-        syncApplicationsStatus();
-        const syncInterval = setInterval(syncApplicationsStatus, 30000);
-        return () => clearInterval(syncInterval);
-    }, []);
+    }, [userId]);
 
-    const loadUserApplications = () => {
-        const saved = localStorage.getItem('acu_user_applications');
-        if (saved) try { setUserApplications(JSON.parse(saved)); } catch (e) {}
-    };
-
-    const saveApplicationToLocal = (application) => {
-        const updated = [application, ...userApplications];
-        setUserApplications(updated);
-        localStorage.setItem('acu_user_applications', JSON.stringify(updated));
-    };
-
-    const syncApplicationsStatus = async () => {
-        if (userApplications.length === 0) {
-            setSyncStatus({ syncing: false, lastSync: new Date() });
-            return;
-        }
+    // Загрузка заявок ТОЛЬКО текущего пользователя
+    const loadUserApplications = async () => {
+        if (!userId) return;
+        
         setSyncStatus(prev => ({ ...prev, syncing: true }));
         try {
-            const token = localStorage.getItem('adminToken');
-            const headers = token ? { 'Authorization': token } : {};
-            const response = await api.get('/admin/whitelist', { headers });
-            const serverApps = response.data;
-            let updated = false;
-            let newApps = [...userApplications];
-            for (const localApp of userApplications) {
-                const serverApp = serverApps.find(sa => sa.id === localApp.id);
-                if (serverApp && localApp.status !== serverApp.status) {
-                    const index = newApps.findIndex(a => a.id === localApp.id);
-                    if (index !== -1) {
-                        newApps[index] = { ...newApps[index], status: serverApp.status, updatedAt: new Date().toISOString() };
-                        updated = true;
-                    }
-                } else if (!serverApp) {
-                    newApps = newApps.filter(a => a.id !== localApp.id);
-                    updated = true;
-                }
-            }
-            if (updated) {
-                setUserApplications(newApps);
-                localStorage.setItem('acu_user_applications', JSON.stringify(newApps));
-                if (showUserApplications) {
-                    setShowUserApplications(false);
-                    setTimeout(() => setShowUserApplications(true), 100);
-                }
-            }
+            const response = await api.get(`/user/my-applications?userId=${userId}`);
+            const apps = response.data;
+            setUserApplications(apps);
+            localStorage.setItem('acu_user_applications', JSON.stringify(apps));
             setSyncStatus({ syncing: false, lastSync: new Date() });
         } catch (error) {
-            console.error('Ошибка синхронизации:', error);
+            console.error('Ошибка загрузки заявок:', error);
+            const saved = localStorage.getItem('acu_user_applications');
+            if (saved) {
+                try { setUserApplications(JSON.parse(saved)); } catch (e) {}
+            }
             setSyncStatus({ syncing: false, lastSync: new Date() });
         }
     };
 
-    const handleOpenUserApplications = async () => {
+    const handleOpenUserApplications = () => {
         setShowUserApplications(true);
-        await syncApplicationsStatus();
+        loadUserApplications();
     };
 
     const handleWhitelistSubmit = async (e) => {
         e.preventDefault();
+        
+        // Сбрасываем ошибку кнопки
+        setSubmitButtonError(false);
         
         if (!whitelistForm.username.trim()) {
             setFormStatus({ show: true, message: 'Введите ваш никнейм', type: 'error' });
@@ -141,9 +122,20 @@ function App() {
             return;
         }
         
+        // Проверка чекбокса
         if (!agreeRules) {
-            setFormStatus({ show: true, message: 'Подтвердите согласие с правилами', type: 'error' });
-            setTimeout(() => setFormStatus({ show: false, message: '', type: '' }), 3000);
+            setSubmitButtonError(true);
+            setFormStatus({ show: true, message: '⚠️ Подтвердите согласие с правилами сервера', type: 'error' });
+            
+            // Прокрутка к кнопке
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Убираем подсветку через 3 секунды
+            setTimeout(() => {
+                setSubmitButtonError(false);
+            }, 3000);
+            
             return;
         }
         
@@ -156,25 +148,15 @@ function App() {
                 uuid: playerUUID,
                 reason: whitelistForm.reason,
                 createExperience: whitelistForm.createExperience,
-                discordTag: whitelistForm.discordTag
+                discordTag: whitelistForm.discordTag,
+                userId: userId
             });
             
-            const newApplication = {
-                id: response.data.application.id,
-                username: whitelistForm.username,
-                reason: whitelistForm.reason,
-                createExperience: whitelistForm.createExperience,
-                discordTag: whitelistForm.discordTag,
-                status: response.data.application.status,
-                createdAt: new Date().toISOString(),
-                autoApproved: response.data.autoApproved
-            };
+            await loadUserApplications();
             
-            saveApplicationToLocal(newApplication);
             setFormStatus({ show: true, message: response.data.message, type: 'success' });
             setWhitelistForm({ username: '', reason: '', createExperience: '', discordTag: '' });
             setAgreeRules(false);
-            setTimeout(() => syncApplicationsStatus(), 1000);
         } catch (error) {
             const message = error.response?.data?.error || 'Ошибка отправки заявки';
             setFormStatus({ show: true, message, type: 'error' });
@@ -185,7 +167,7 @@ function App() {
     };
 
     const copyIP = () => {
-        navigator.clipboard.writeText('play.association-create-units.com');
+        navigator.clipboard.writeText('78.109.129.242:9028');
         alert('IP скопирован!');
     };
 
@@ -226,7 +208,7 @@ function App() {
             <nav className="navbar">
                 <div className="nav-container">
                     <Link to="/" className="logo">
-                        <span className="logo-icon">⚔️</span>
+                        <img src="src\logo\acu_logo.png" alt="ACU Logo" className="logo-icon" />
                         <span>Association Create Units</span>
                     </Link>
                     <ul className="nav-menu">
@@ -261,13 +243,13 @@ function App() {
                         <div className="modal-header"><h3>📋 Мои заявки</h3><button className="close-modal" onClick={() => setShowUserApplications(false)}>✕</button></div>
                         <div className="modal-info">
                             <div className="sync-info">
-                                <div className="sync-status-row"><span className={`sync-icon ${syncStatus.syncing ? 'spinning' : ''}`}>🔄</span><span>Авто-обновление каждые 30 сек</span></div>
-                                <button className="manual-sync-btn" onClick={() => syncApplicationsStatus()} disabled={syncStatus.syncing}>{syncStatus.syncing ? '⏳ Синхронизация...' : '🔄 Обновить'}</button>
+                                <div className="sync-status-row"><span className={`sync-icon ${syncStatus.syncing ? 'spinning' : ''}`}>🔄</span><span>Статусы обновляются автоматически</span></div>
+                                <button className="manual-sync-btn" onClick={loadUserApplications} disabled={syncStatus.syncing}>{syncStatus.syncing ? '⏳ Синхронизация...' : '🔄 Обновить'}</button>
                             </div>
                             <div className="last-sync">Последнее обновление: {getLastSyncTime()}</div>
                         </div>
                         <div className="applications-list-user">
-                            {userApplications.length === 0 ? <div className="no-applications">Нет заявок</div> : userApplications.map(app => (
+                            {userApplications.length === 0 ? <div className="no-applications">У вас нет отправленных заявок</div> : userApplications.map(app => (
                                 <div key={app.id} className="user-application-card" style={{ borderLeftColor: getStatusColor(app.status) }}>
                                     <div className="app-header"><span className="app-username">🎮 {app.username}</span><span className="app-status" style={{ color: getStatusColor(app.status) }}>{getStatusText(app.status)}</span></div>
                                     <div className="app-details-user">
@@ -281,7 +263,7 @@ function App() {
                         </div>
                         {userApplications.length > 0 && (
                             <div className="modal-footer">
-                                <button className="clear-applications-btn" onClick={() => { if (window.confirm('Очистить историю заявок?')) { localStorage.removeItem('acu_user_applications'); setUserApplications([]); setShowUserApplications(false); } }}>🗑️ Очистить историю</button>
+                                <button className="clear-applications-btn" onClick={() => { if (window.confirm('Очистить историю заявок?')) { localStorage.removeItem('acu_user_applications'); loadUserApplications(); } }}>🗑️ Очистить историю</button>
                             </div>
                         )}
                     </div>
@@ -293,7 +275,7 @@ function App() {
                     <section id="home" className="hero">
                         <div className="hero-content">
                             <div className="acu-main">
-                                <div className="acu-glowing-icon">⚔️</div>
+                                <img src="src/logo/acu_main_logo.png" alt="ACU Logo" className="acu-logo-img" />
                                 <h1 className="acu-title">
                                     <span className="acu-acronym">ACU</span>
                                     <span className="acu-full">Association Create Units</span>
@@ -304,7 +286,7 @@ function App() {
                             <div className="slogan-accent"></div>
                             <div className="server-info">
                                 <div className="status"><span className={`dot ${serverStatus.online ? 'online' : ''}`}></span><span>{serverStatus.online ? `Онлайн: ${serverStatus.players}/${serverStatus.maxPlayers}` : 'Сервер оффлайн'}</span></div>
-                                <div className="ip">IP: play.association-create-units.com</div>
+                                <div className="ip">IP: 78.109.129.242:9028</div>
                                 <button onClick={copyIP} className="copy-btn">📋 Скопировать IP</button>
                             </div>
                         </div>
@@ -348,20 +330,44 @@ function App() {
                                 
                                 <div className="form-group">
                                     <label>Опыт игры с модом Create</label>
-                                    <select 
-                                        value={whitelistForm.createExperience}
-                                        onChange={(e) => setWhitelistForm({ ...whitelistForm, createExperience: e.target.value })}
-                                        disabled={isSubmitting}
-                                        className="create-select"
-                                    >
-                                        <option value="">Выберите уровень опыта</option>
-                                        <option value="Новичок">🔰 Новичок — только начинаю знакомиться с модом</option>
-                                        <option value="Любитель">⚙️ Любитель — базовые механизмы и понимание</option>
-                                        <option value="Опытный">🏭 Опытный — уверенно строю механизмы и фермы</option>
-                                        <option value="Эксперт">🔧 Эксперт — знаю все нюансы, люблю автоматизацию</option>
-                                        <option value="Мастер">💎 Мастер — создаю сложные системы, готов помогать другим</option>
-                                    </select>
-                                    <small className="form-hint">Не обязательно, но поможет нам узнать вас лучше</small>
+                                    <div className="experience-buttons">
+                                        <button 
+                                            type="button"
+                                            className={`exp-btn ${whitelistForm.createExperience === 'Новичок' ? 'active' : ''}`}
+                                            onClick={() => setWhitelistForm({ ...whitelistForm, createExperience: 'Новичок' })}
+                                        >
+                                            <span className="exp-emoji">🔰</span> Новичок
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className={`exp-btn ${whitelistForm.createExperience === 'Любитель' ? 'active' : ''}`}
+                                            onClick={() => setWhitelistForm({ ...whitelistForm, createExperience: 'Любитель' })}
+                                        >
+                                            <span className="exp-emoji">⚙️</span> Любитель
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className={`exp-btn ${whitelistForm.createExperience === 'Опытный' ? 'active' : ''}`}
+                                            onClick={() => setWhitelistForm({ ...whitelistForm, createExperience: 'Опытный' })}
+                                        >
+                                            <span className="exp-emoji">🏭</span> Опытный
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className={`exp-btn ${whitelistForm.createExperience === 'Эксперт' ? 'active' : ''}`}
+                                            onClick={() => setWhitelistForm({ ...whitelistForm, createExperience: 'Эксперт' })}
+                                        >
+                                            <span className="exp-emoji">🔧</span> Эксперт
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className={`exp-btn ${whitelistForm.createExperience === 'Мастер' ? 'active' : ''}`}
+                                            onClick={() => setWhitelistForm({ ...whitelistForm, createExperience: 'Мастер' })}
+                                        >
+                                            <span className="exp-emoji">💎</span> Мастер
+                                        </button>
+                                    </div>
+                                    <small className="form-hint">Выберите ваш уровень — это поможет нам узнать вас лучше</small>
                                 </div>
                                 
                                 <div className="form-group">
@@ -370,7 +376,7 @@ function App() {
                                         value={whitelistForm.reason}
                                         onChange={(e) => setWhitelistForm({ ...whitelistForm, reason: e.target.value })}
                                         rows="3" 
-                                        placeholder="Расскажите о себе..."
+                                        placeholder="Расскажите о себе, что вас привлекает в моде Create..."
                                         disabled={isSubmitting}
                                     ></textarea>
                                 </div>
@@ -380,16 +386,25 @@ function App() {
                                         <input 
                                             type="checkbox" 
                                             checked={agreeRules}
-                                            onChange={(e) => setAgreeRules(e.target.checked)}
+                                            onChange={(e) => {
+                                                setAgreeRules(e.target.checked);
+                                            }}
                                             required
                                             disabled={isSubmitting}
                                         />
-                                        Я прочитал и согласен с <Link to="/rules">правилами сервера</Link>
+                                        <span className="checkmark"></span>
+                                        <span className="checkbox-text">
+                                            Я прочитал и согласен с <Link to="/rules">правилами сервера</Link>
+                                        </span>
                                     </label>
                                 </div>
                                 
-                                <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Отправка...' : '📝 Отправить заявку'}
+                                <button 
+                                    type="submit" 
+                                    className={`submit-btn ${!agreeRules ? 'disabled' : ''}`}
+                                    disabled={!agreeRules || isSubmitting}
+                                >
+                                    {!agreeRules ? '🔒 Подтвердите правила' : (isSubmitting ? 'Отправка...' : '📝 Отправить заявку')}
                                 </button>
                             </form>
                             {formStatus.show && (
@@ -401,7 +416,7 @@ function App() {
                     </section>
                 } />
             </Routes>
-            <footer><p>© 2024 Association Create Units — объединяем, чтобы создавать</p></footer>
+            <footer><p>© 2026 Association Create Units — объединяем, чтобы создавать</p></footer>
         </div>
     );
 }
