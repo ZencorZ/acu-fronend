@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './AdminPanel.css';
 import axios from 'axios';
 import RulesEditor from './RulesEditor';
+import BuildEditor from './BuildEditor';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-const api = axios.create({
-    baseURL: `${API_URL}/api`,
-    timeout: 10000
-});
+const api = axios.create({ baseURL: '/api', timeout: 10000 });
 
 function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
     const [loginData, setLoginData] = useState({ username: '', password: '' });
@@ -25,6 +22,7 @@ function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
     const [settingsLoading, setSettingsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('applications');
     const [showRulesEditor, setShowRulesEditor] = useState(false);
+    const [showBuildEditor, setShowBuildEditor] = useState(false);
 
     const getAuthHeaders = () => ({ headers: { 'Authorization': localStorage.getItem('adminToken') } });
 
@@ -119,21 +117,19 @@ function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
     const handleAutoFetchUUIDToggle = () => updateSettings({ autoFetchUUID: !settings.autoFetchUUID });
     const handleRuleChange = (rule, value) => updateSettings({ autoApproveRules: { ...settings.autoApproveRules, [rule]: value } });
 
+    const handleLogoutClick = async () => {
+        try {
+            await api.post('/admin/logout', {}, getAuthHeaders());
+        } catch (error) {
+            console.error('Ошибка выхода:', error);
+        }
+        localStorage.removeItem('adminToken');
+        onLogout?.();
+    };
+
     const filteredApplications = applications.filter(app => filter === 'all' ? true : app.status === filter);
     const getStatusBadgeClass = (status) => ({ pending: 'badge-pending', approved: 'badge-approved', rejected: 'badge-rejected' }[status] || '');
     const getStatusText = (status) => ({ pending: '⏳ На рассмотрении', approved: '✅ Одобрено', rejected: '❌ Отклонено' }[status] || status);
-
-    // Функция для получения эмодзи опыта
-    const getExperienceEmoji = (experience) => {
-        switch (experience) {
-            case 'Новичок': return '🔰';
-            case 'Любитель': return '⚙️';
-            case 'Опытный': return '🏭';
-            case 'Эксперт': return '🔧';
-            case 'Мастер': return '💎';
-            default: return '❓';
-        }
-    };
 
     if (!isLoggedIn) {
         return (
@@ -155,6 +151,7 @@ function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
         <div className="admin-modal admin-panel">
             <div className="admin-modal-content admin-panel-content">
                 <div className="admin-modal-header"><h2>⚙️ Панель управления</h2><button className="close-btn" onClick={onClose}>✕</button></div>
+
                 <div className="admin-tabs">
                     <button className={`tab-btn ${activeTab === 'applications' ? 'active' : ''}`} onClick={() => setActiveTab('applications')}>📋 Заявки ({applications.length})</button>
                     <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>⚙️ Настройки</button>
@@ -186,7 +183,6 @@ function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
                                             <span className={`status-badge ${getStatusBadgeClass(app.status)}`}>{getStatusText(app.status)}</span>
                                         </div>
 
-                                        {/* Дополнительная информация */}
                                         <div className="app-additional">
                                             {app.discordTag && (
                                                 <div className="app-field">
@@ -197,15 +193,7 @@ function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
                                             {app.createExperience && (
                                                 <div className="app-field">
                                                     <span className="field-label">⚙️ Опыт Create:</span>
-                                                    <span className="field-value">
-                                                        {getExperienceEmoji(app.createExperience)} {app.createExperience}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {app.uuid && (
-                                                <div className="app-field">
-                                                    <span className="field-label">🆔 UUID:</span>
-                                                    <span className="field-value uuid-value">{app.uuid}</span>
+                                                    <span className="field-value">{app.createExperience}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -317,15 +305,20 @@ function AdminPanel({ onClose, isLoggedIn, onLogin, onLogout }) {
                         <div className="settings-section">
                             <button onClick={() => setShowRulesEditor(true)} className="edit-rules-main-btn">📝 Редактировать правила</button>
                         </div>
+
+                        <div className="settings-section">
+                            <button onClick={() => setShowBuildEditor(true)} className="edit-build-main-btn">📦 Редактировать сборку</button>
+                        </div>
                     </div>
                 )}
 
                 <div className="admin-footer">
                     <button onClick={fetchApplications} className="refresh-btn">🔄 Обновить</button>
-                    <button onClick={onLogout} className="logout-btn">🚪 Выйти</button>
+                    <button onClick={handleLogoutClick} className="logout-btn">🚪 Выйти</button>
                 </div>
             </div>
             {showRulesEditor && <RulesEditor onClose={() => setShowRulesEditor(false)} adminToken={localStorage.getItem('adminToken')} />}
+            {showBuildEditor && <BuildEditor onClose={() => setShowBuildEditor(false)} adminToken={localStorage.getItem('adminToken')} />}
         </div>
     );
 }

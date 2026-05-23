@@ -5,6 +5,7 @@ import axios from 'axios';
 import AdminPanel from './components/AdminPanel';
 import RulesPage from './pages/RulesPage';
 import logo from './logo/logo.png';
+import BuildPage from './pages/BuildPage';
 
 // ========== API URL из переменной окружения ==========
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -210,6 +211,7 @@ function App() {
                         <li><Link to="/">Главная</Link></li>
                         <li><Link to="/whitelist">Вайтлист</Link></li>
                         <li><Link to="/rules">Правила</Link></li>
+                        <li><Link to="/build">📦 Сборка</Link></li>
                         <li>
                             <a 
                                 href="https://discord.gg/E98S2hRg6C" 
@@ -423,6 +425,7 @@ function App() {
                         </div>
                     </section>
                 } />
+            <Route path="/build" element={<BuildPage />} />
             </Routes>
             <footer><p>© 2026 Association Create Units — объединяем, чтобы создавать</p></footer>
         </div>

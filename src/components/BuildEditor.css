@@ -1,0 +1,189 @@
+.build-editor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.build-editor-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid var(--accent);
+}
+
+.build-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(78, 204, 163, 0.3);
+    position: sticky;
+    top: 0;
+    background: inherit;
+}
+
+    .build-editor-header h2 {
+        color: var(--accent);
+        margin: 0;
+    }
+
+.build-editor-sections {
+    padding: 1.5rem;
+}
+
+.editor-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+    .editor-section h3 {
+        color: var(--accent);
+        margin-bottom: 1rem;
+    }
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.add-mod-btn {
+    background: var(--accent);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.editor-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.editor-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.editor-input-half {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+}
+
+.save-build-btn {
+    background: linear-gradient(135deg, var(--accent), #2d7a3e);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.mods-editor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.mod-editor-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.mod-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mod-editor-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mod-editor-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-mod-btn, .delete-mod-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 5px;
+}
+
+    .edit-mod-btn:hover {
+        background: rgba(78, 204, 163, 0.2);
+    }
+
+    .delete-mod-btn:hover {
+        background: rgba(255, 0, 0, 0.2);
+    }
+
+.mod-editor-description {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding-left: 1.8rem;
+}
+
+.mod-add-form {
+    margin: 1rem 1.5rem;
+    padding: 1rem;
+    background: rgba(78, 204, 163, 0.1);
+    border-radius: 10px;
+    border: 1px solid var(--accent);
+}
+
+    .mod-add-form h3 {
+        color: var(--accent);
+        margin-bottom: 1rem;
+    }
+
+.build-message {
+    margin: 1rem 1.5rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+    .build-message.success {
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #00ff00;
+        color: #00ff00;
+    }
+
+    .build-message.error {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid #ff0000;
+        color: #ff6b6b;
+    }
