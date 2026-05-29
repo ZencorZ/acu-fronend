@@ -163,7 +163,7 @@ function App() {
     };
 
     const copyIP = () => {
-        navigator.clipboard.writeText('78.109.129.242:9028');
+        navigator.clipboard.writeText('mc.acucreate.ru');
         alert('IP скопирован!');
     };
 
@@ -296,7 +296,7 @@ function App() {
                             <div className="slogan-accent"></div>
                             <div className="server-info">
                                 <div className="status"><span className={`dot ${serverStatus.online ? 'online' : ''}`}></span><span>{serverStatus.online ? `Онлайн: ${serverStatus.players}/${serverStatus.maxPlayers}` : 'Сервер оффлайн'}</span></div>
-                                <div className="ip">IP: 78.109.129.242:9028</div>
+                                <div className="ip">IP: mc.acucreate.ru</div>
                                 <button onClick={copyIP} className="copy-btn">📋 Скопировать IP</button>
                             </div>
                         </div>
